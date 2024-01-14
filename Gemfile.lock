@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    remote_entity (0.1.0)
+    remote_entity (1.0.0)
       cgi (~> 0.2)
       oauth2 (~> 2.0)
       rspec (~> 3.0)
@@ -39,6 +39,7 @@ GEM
     racc (1.7.3)
     rack (3.0.8)
     rainbow (3.1.1)
+    rake (13.1.0)
     regexp_parser (2.9.0)
     rexml (3.2.6)
     rspec (3.12.0)
@@ -85,7 +86,10 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  rake (~> 13.0)
   remote_entity!
+  rspec (~> 3.0)
+  rubocop (~> 1.21)
   simplecov
 
 BUNDLED WITH
