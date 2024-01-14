@@ -8,5 +8,5 @@ gemspec
 # gem "rake", "~> 13.0"
 
 group :test do
-  gem 'simplecov', require: false
+  gem "simplecov", require: false
 end
