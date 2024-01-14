@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'remote_entity'
+require "remote_entity"
 
 RSpec.describe RemoteEntity do
   it "has a version number" do
@@ -28,7 +28,7 @@ RSpec.describe RemoteEntity do
               url: "https://example.com/data/:id",
               http_method: "Get",
               param_mapping: {
-                query_params: [:name, :age],
+                query_params: %i[name age],
                 path_params: [:id]
               }
             },
@@ -37,7 +37,7 @@ RSpec.describe RemoteEntity do
               url: "https://example.com/data",
               http_method: "Post",
               param_mapping: {
-                body_params: [:name, :age],
+                body_params: %i[name age],
                 path_params: [:id]
               }
             }
@@ -62,7 +62,10 @@ RSpec.describe RemoteEntity do
 
       describe "MyEntity.get_data" do
         before do
-          allow_any_instance_of(Net::HTTP).to receive(:request).and_return(double(read_body: {last_name: "Doe"}.to_json))
+          allow_any_instance_of(Net::HTTP).to receive(:request)
+            .and_return(
+              double(read_body: { last_name: "Doe" }.to_json)
+            )
         end
 
         it "creates a new instance of Net::HTTP::Get" do
@@ -84,7 +87,12 @@ RSpec.describe RemoteEntity do
             }
           end
           it "sends a GET request with an OAuth2 authorized token header" do
-            expect(RemoteEntity).to receive(:build_oauth2_authorized_token_header).with("oauth2.client_credentials", options[:authentications]).and_return("Bearer token")
+            expect(RemoteEntity).to receive(:build_oauth2_authorized_token_header)
+              .with(
+                "oauth2.client_credentials",
+                options[:authentications]
+              )
+              .and_return("Bearer token")
             entity.get_data(id: 1, name: "John", age: 30)
           end
         end
@@ -94,15 +102,17 @@ RSpec.describe RemoteEntity do
             options[:methods][0][:r_turn] = true
           end
           it "returns the response body" do
-            expect(entity.get_data(id: 1, name: "John", age: 30)).to eq({"last_name" => "Doe"})
+            expect(entity.get_data(id: 1, name: "John", age: 30)).to eq({ "last_name" => "Doe" })
           end
         end
       end
 
-
       describe "MyEntity.create_data" do
         before do
-          allow_any_instance_of(Net::HTTP).to receive(:request).and_return(double(read_body: {last_name: "Doe"}.to_json))
+          allow_any_instance_of(Net::HTTP).to receive(:request)
+            .and_return(
+              double(read_body: { last_name: "Doe" }.to_json)
+            )
         end
 
         it "creates a new instance of Net::HTTP::Post" do
@@ -110,21 +120,19 @@ RSpec.describe RemoteEntity do
           entity.create_data(name: "John", age: 30)
         end
 
-
         context "when body parameters are configured" do
           it "sends a POST request with body parameters" do
-            expect_any_instance_of(Net::HTTP::Post).to receive(:body=).with({name: "John", age: 30}.to_json)
+            expect_any_instance_of(Net::HTTP::Post).to receive(:body=).with({ name: "John", age: 30 }.to_json)
             entity.create_data(name: "John", age: 30)
           end
         end
-
       end
     end
   end
 
   describe ".build_path_params" do
     let(:base_url) { "https://example.com/users/:id/posts/:post_id" }
-    let(:keys) { [:id, :post_id] }
+    let(:keys) { %i[id post_id] }
     let(:params) { { id: 1, post_id: 10 } }
     let(:expected_result) { "https://example.com/users/1/posts/10" }
 
@@ -135,7 +143,7 @@ RSpec.describe RemoteEntity do
 
   describe ".build_query_params" do
     let(:base_url) { "https://example.com/data" }
-    let(:keys) { [:email, :name, :age] }
+    let(:keys) { %i[email name age] }
     let(:params) { { email: "john@example.com", name: "John", age: 30 } }
     let(:expected_result) { "https://example.com/data?email=john%40example.com&name=John&age=30" }
 
@@ -153,13 +161,13 @@ RSpec.describe RemoteEntity do
   end
 
   describe ".build_body_params" do
-    let(:keys) { [:name, :age] }
-    let(:params) { { name: "John", age: 30, email: "john@example"} }
+    let(:keys) { %i[name age] }
+    let(:params) { { name: "John", age: 30, email: "john@example" } }
     # only keys that are provided are included in the result
     let(:expected_result) { { name: "John", age: 30 } }
 
     it "builds a hash with the provided keys and values" do
-      expect(RemoteEntity.build_body_params(nil, keys, params)).to eq(expected_result)
+      expect(RemoteEntity.build_body_params(keys, params)).to eq(expected_result)
     end
   end
 
@@ -178,10 +186,11 @@ RSpec.describe RemoteEntity do
         }
       }
     end
-    let(:expected_result){ "Bearer token" }
+    let(:expected_result) { "Bearer token" }
 
     before do
-      allow(OAuth2::Client).to receive(:new).and_return(double(client_credentials: double(get_token: double(token: "token"))))
+      allow(OAuth2::Client).to receive(:new)
+        .and_return(double(client_credentials: double(get_token: double(token: "token"))))
     end
 
     it "builds an OAuth2 authorized token header" do

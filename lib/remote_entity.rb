@@ -3,76 +3,80 @@
 require_relative "remote_entity/version"
 require "oauth2"
 require "time"
-require 'cgi'
+require "cgi"
 require "json"
 require "net/http"
-require 'pry'
 
+# RemoteEntity is a gem that allows you to define a class that can call remote APIs.
 module RemoteEntity
   class Error < StandardError; end
+
   # Your code goes here...
   def self.configure(options)
     raise "missing required parameter - name" if options[:name].nil?
     raise "missing required parameter - methods" if options[:methods].nil?
 
-    Object.const_set(
-      options[:name], Class.new do
-        options[:methods].each do |method|
-          singleton_class.send(:define_method, method[:name]) do |arg|
-            raise "invalid parameter type - accepted only hash" unless arg.is_a? Hash
+    Object.const_set(options[:name], RemoteEntity.build_dynamic_class(options))
+  end
 
-            url = method[:url]
+  def self.build_dynamic_class(options)
+    Class.new do
+      options[:methods].each do |method|
+        singleton_class.send(:define_method, method[:name]) do |arg|
+          raise "invalid parameter type - accepted only hash" unless arg.is_a? Hash
 
-            if method[:param_mapping] && method[:param_mapping][:path_params]
-              url = RemoteEntity.build_path_params(url, method[:param_mapping][:path_params], arg)
-            end
+          url = RemoteEntity.build_url(method, arg)
+          https = Net::HTTP.new(url.host, url.port)
+          https.use_ssl = true
+          http_class = Object.const_get("Net::HTTP::#{method[:http_method]}")
+          request = http_class.new(url)
+          request["Content-Type"] = "application/json"
 
-            if method[:param_mapping] && method[:param_mapping][:query_params]
-              url = RemoteEntity.build_query_params(url, method[:param_mapping][:query_params], arg)
-            end
-
-            url = URI(url)
-            https = Net::HTTP.new(url.host, url.port)
-            https.use_ssl = true
-            http_class = Object.const_get("Net::HTTP::#{method[:http_method]}")
-            request = http_class.new(url)
-            request["Content-Type"] = "application/json"
-
-            if method[:authentication]
-              if method[:authentication][:method].include?("oauth2")
-                request["Authorization"] = RemoteEntity.build_oauth2_authorized_token_header(method[:authentication][:method], options[:authentications])
-              end
-            end
-
-            if method[:param_mapping] && method[:param_mapping][:body_params]
-              request.body = JSON.dump(RemoteEntity.build_body_params(url, method[:param_mapping][:body_params], arg))
-            end
-
-            response = https.request(request)
-            attributes = JSON.parse(response.read_body)
-            if method[:r_turn]
-              return attributes
-            end
-
+          if method[:authentication] && method[:authentication][:method].include?("oauth2")
+            request["Authorization"] =
+              RemoteEntity.build_oauth2_authorized_token_header(method[:authentication][:method],
+                                                                options[:authentications])
           end
+
+          if method[:param_mapping] && method[:param_mapping][:body_params]
+            request.body = JSON.dump(RemoteEntity.build_body_params(method[:param_mapping][:body_params], arg))
+          end
+
+          response = https.request(request)
+          attributes = JSON.parse(response.read_body)
+          return attributes if method[:r_turn]
         end
       end
-    )
+    end
+  end
+
+  def self.build_url(method, arg)
+    url = method[:url]
+
+    if method[:param_mapping] && method[:param_mapping][:path_params]
+      url = RemoteEntity.build_path_params(url, method[:param_mapping][:path_params], arg)
+    end
+
+    if method[:param_mapping] && method[:param_mapping][:query_params]
+      url = RemoteEntity.build_query_params(url, method[:param_mapping][:query_params], arg)
+    end
+
+    URI(url)
   end
 
   def self.build_path_params(base_url, keys, params)
     result = base_url
     keys.each do |k|
-      result = result.gsub(":#{k.to_s}", params[k].to_s)
+      result = result.gsub(":#{k}", params[k].to_s)
     end
     result
   end
 
   def self.build_query_params(base_url, keys, params)
-    if keys.size > 0
+    if keys.size.positive?
       result = "#{base_url}?"
       keys.each do |k|
-        result = "#{result}#{k.to_s}=#{CGI.escape(params[k].to_s)}&"
+        result = "#{result}#{k}=#{CGI.escape(params[k].to_s)}&"
       end
       # remove the last &
       return result[0...-1]
@@ -80,7 +84,7 @@ module RemoteEntity
     base_url
   end
 
-  def self.build_body_params(base_url, keys, params)
+  def self.build_body_params(keys, params)
     result = {}
     keys.each do |k|
       result[k.to_sym] = params[k.to_sym]
