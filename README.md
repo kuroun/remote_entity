@@ -1,6 +1,6 @@
 # RemoteEntity
 
-A gem to create entity classes and methods which make http request to remote servers using configuration style. It avoids writing duplicated code that communicates to multiple remote services.
+A gem to create entity classes and methods which make http request to remote servers using **configuration style**. It avoids writing duplicated code that communicates to multiple remote services.
 
 It is something less restricts than [her](https://github.com/remi/her) which maps to any http requests (not only for RESTful resources) but comparing to [rest-client](https://github.com/rest-client/rest-client), this gem is more object oriented. See usage below for details.
 
@@ -88,8 +88,8 @@ curl --location 'https://example.com/users' \
 --header 'Content-Type: application/json' \
 --data-raw '
 {
-"name": "Jonas",
-"age": 22
+"name": "John",
+"age": 23
 }'
 ```
 It has no authorization configured, so no `Authorization` header.
