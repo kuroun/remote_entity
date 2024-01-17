@@ -4,8 +4,6 @@ PATH
     remote_entity (1.0.0)
       cgi (~> 0.2)
       oauth2 (~> 2.0)
-      rspec (~> 3.0)
-      rubocop (~> 1.21)
 
 GEM
   remote: https://rubygems.org/
