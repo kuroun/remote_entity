@@ -19,9 +19,12 @@ runs:
 
     - name: Install dependencies
       run: bundle install
+      shell: bash
 
     - name: Run rubocop
       run: bundle exec rubocop .
+      shell: bash
 
     - name: Run tests
       run: bundle exec rspec
+      shell: bash
