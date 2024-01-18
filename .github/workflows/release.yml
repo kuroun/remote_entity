@@ -7,15 +7,9 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-
+    name: Release
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: 3.2.2
-
+    - uses: kseung-gpsw/remote_entity/.github/actions/ruby_build@main
     - name: Build and publish gem
       run: |
         gem build *.gemspec

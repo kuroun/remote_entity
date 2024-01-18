@@ -11,12 +11,5 @@ jobs:
   build:
     runs-on: ubuntu-latest
     name: Build
-    strategy:
-      matrix:
-        ruby:
-          - '3.2.2'
-
     steps:
     - uses: kseung-gpsw/remote_entity/.github/actions/ruby_build@main
-      with:
-        ruby-version: ${{ matrix.ruby }}
