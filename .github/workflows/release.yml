@@ -1,0 +1,24 @@
+name: Release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 3.2.2
+
+    - name: Build and publish gem
+      run: |
+        gem build *.gemspec
+        gem push *.gem
+      env:
+        RUBYGEMS_API_KEY: ${{secrets.RUBYGEMS_API_KEY}}
