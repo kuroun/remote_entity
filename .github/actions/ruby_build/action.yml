@@ -1,0 +1,27 @@
+name: 'Ruby Build Action'
+description: 'Sets up Ruby, installs dependencies, and runs RuboCop and RSpec'
+inputs:
+  ruby-version:
+    description: 'Version of Ruby to use'
+    required: true
+    default: '3.2.2'
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ inputs.ruby-version }}
+        bundler-cache: true
+
+    - name: Install dependencies
+      run: bundle install
+
+    - name: Run rubocop
+      run: bundle exec rubocop .
+
+    - name: Run tests
+      run: bundle exec rspec
