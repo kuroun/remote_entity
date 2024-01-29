@@ -16,7 +16,7 @@ module RemoteEntity
     raise "missing required parameter - name" if options[:name].nil?
     raise "missing required parameter - methods" if options[:methods].nil?
 
-    RemoteEntity.const_set("#{options[:name]}", build_dynamic_class(options))
+    RemoteEntity.const_set(options[:name], build_dynamic_class(options))
   end
 
   def self.build_dynamic_class(options)
