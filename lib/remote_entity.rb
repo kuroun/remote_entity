@@ -16,7 +16,7 @@ module RemoteEntity
     raise "missing required parameter - name" if options[:name].nil?
     raise "missing required parameter - methods" if options[:methods].nil?
 
-    Object.const_set(options[:name], RemoteEntity.build_dynamic_class(options))
+    RemoteEntity.const_set("#{options[:name]}", build_dynamic_class(options))
   end
 
   def self.build_dynamic_class(options)
@@ -104,4 +104,6 @@ module RemoteEntity
     token = client.send(grant_type).get_token(scope: credentials_info[:scope]).token
     "Bearer #{token}"
   end
+
+  private_class_method :build_dynamic_class
 end
