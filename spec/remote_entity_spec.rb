@@ -45,14 +45,14 @@ RSpec.describe RemoteEntity do
         }
       end
 
-      let(:entity) { MyEntity }
+      let(:entity) { RemoteEntity::MyEntity }
 
       before do
         RemoteEntity.configure(options)
       end
 
       it "defines a new class with the provided name" do
-        expect(Object.const_defined?("MyEntity")).to be true
+        expect(Object.const_defined?("RemoteEntity::MyEntity")).to be true
       end
 
       it "defines methods on the new class" do
@@ -60,7 +60,7 @@ RSpec.describe RemoteEntity do
         expect(entity).to respond_to(:create_data)
       end
 
-      describe "MyEntity.get_data" do
+      describe "RemoteEntity::MyEntity.get_data" do
         before do
           allow_any_instance_of(Net::HTTP).to receive(:request)
             .and_return(
@@ -107,7 +107,7 @@ RSpec.describe RemoteEntity do
         end
       end
 
-      describe "MyEntity.create_data" do
+      describe "RemoteEntity::MyEntity.create_data" do
         before do
           allow_any_instance_of(Net::HTTP).to receive(:request)
             .and_return(
