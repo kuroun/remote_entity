@@ -6,7 +6,7 @@ on:
 
 jobs:
   release:
-    if: github.actor == 'kseung-gpsw'
+    if: github.actor == 'kuroun'
     runs-on: ubuntu-latest
     name: Release
     steps:
