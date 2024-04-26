@@ -39,8 +39,8 @@ module RemoteEntity
           end
 
           response = https.request(request)
-          attributes = JSON.parse(response.read_body)
-          return attributes if method[:r_turn]
+
+          return JSON.parse(response.read_body) if method[:r_turn] && !response.read_body.empty?
         end
       end
     end
@@ -48,8 +48,9 @@ module RemoteEntity
 
   def self.set_authorization_header(request, method, arg, options)
     accepting_instant_token_key = method[:authentication][:accepting_instant_token]
+
     if accepting_instant_token_key && arg[accepting_instant_token_key]
-      request["Authorization"] = "Bearer #{arg[:oauth2_token]}"
+      request["Authorization"] = "Bearer #{arg[accepting_instant_token_key]}"
     elsif method[:authentication][:method].include?("oauth2")
       request["Authorization"] =
         RemoteEntity.build_oauth2_authorized_token_header(method[:authentication][:method],
