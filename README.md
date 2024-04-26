@@ -6,6 +6,9 @@ It is something less restricts than [her](https://github.com/remi/her) which map
 
 Currently it supports oauth2 `client_credentials` grant type for API authentication.
 
+## Supporting Ruby versions
+This gem can be used in Ruby >= 2.5.0. However, it might have incompatibilities as this gem was tested with Ruby 3.2.2. Please test thoroughly.
+
 ## Installation
 
 Install the gem and add to the application's Gemfile by executing:

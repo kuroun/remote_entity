@@ -10,3 +10,4 @@
 ## [2.1.0] - 2024-04-26
 
 - Allow instant authorized token in the method params and bypass request to get oauth2 token
+- Allow this gem to use with Ruby >= 2.5.0
