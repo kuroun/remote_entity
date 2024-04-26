@@ -32,11 +32,7 @@ module RemoteEntity
           request = http_class.new(url)
           request["Content-Type"] = "application/json"
 
-          if method[:authentication] && method[:authentication][:method].include?("oauth2")
-            request["Authorization"] =
-              RemoteEntity.build_oauth2_authorized_token_header(method[:authentication][:method],
-                                                                options[:authentications])
-          end
+          RemoteEntity.set_authorization_header(request, method, arg, options) if method[:authentication]
 
           if method[:param_mapping] && method[:param_mapping][:body_params]
             request.body = JSON.dump(RemoteEntity.build_body_params(method[:param_mapping][:body_params], arg))
@@ -47,6 +43,17 @@ module RemoteEntity
           return attributes if method[:r_turn]
         end
       end
+    end
+  end
+
+  def self.set_authorization_header(request, method, arg, options)
+    accepting_instant_token_key = method[:authentication][:accepting_instant_token]
+    if accepting_instant_token_key && arg[accepting_instant_token_key]
+      request["Authorization"] = "Bearer #{arg[:oauth2_token]}"
+    elsif method[:authentication][:method].include?("oauth2")
+      request["Authorization"] =
+        RemoteEntity.build_oauth2_authorized_token_header(method[:authentication][:method],
+                                                          options[:authentications])
     end
   end
 
@@ -102,6 +109,7 @@ module RemoteEntity
                                 site: credentials_info[:site],
                                 token_url: credentials_info[:token_url])
     token = client.send(grant_type).get_token(scope: credentials_info[:scope]).token
+
     "Bearer #{token}"
   end
 

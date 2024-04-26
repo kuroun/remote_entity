@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Release
     steps:
-    - uses: kseung-gpsw/remote_entity/.github/actions/ruby_build@main
+    - uses: kuroun/remote_entity/.github/actions/ruby_build@main
     - name: Build and publish gem
       run: |
         gem build *.gemspec

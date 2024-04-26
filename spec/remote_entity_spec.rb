@@ -97,6 +97,20 @@ RSpec.describe RemoteEntity do
           end
         end
 
+        context "when authentication is configured with oauth2 and accepting_instant_token" do
+          before do
+            options[:methods][0][:authentication] = {
+              method: "oauth2.client_credentials",
+              accepting_instant_token: :authorized_token
+            }
+          end
+
+          it "sends a GET request with an instant OAuth2 authorized token header" do
+            expect(RemoteEntity).not_to receive(:build_oauth2_authorized_token_header)
+            entity.get_data(id: 1, name: "John", age: 30, authorized_token: "token")
+          end
+        end
+
         context "when r_turn is configured" do
           before do
             options[:methods][0][:r_turn] = true
